@@ -3,52 +3,36 @@ name: FastAPI CI Pipeline
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/setup-python@v4
       with:
         python-version: "3.10"
 
     - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
+      run: pip install -r requirements.txt
 
     - name: Run basic app check
-      run: |
-        python -c "from main import app; print('App loaded successfully')"
+      run: python -c "from main import app; print('App loaded successfully')"
 
-    # -------------------------
-    # DEBUG SECRETS (SAFE)
-    # -------------------------
     - name: Debug secrets presence
       run: |
         if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ]; then echo "Username missing"; else echo "Username OK"; fi
         if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then echo "Token missing"; else echo "Token OK"; fi
 
-    # -------------------------
-    # LOGIN TO DOCKERHUB
-    # -------------------------
     - name: Login to DockerHub
       run: |
         echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login \
           -u "${{ secrets.DOCKERHUB_USERNAME }}" \
           --password-stdin
 
-    # -------------------------
-    # BUILD + PUSH IMAGE
-    # -------------------------
     - name: Build and push Docker image
       run: |
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-demo:latest .
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-demo:latest
-
