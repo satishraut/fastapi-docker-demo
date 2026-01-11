@@ -1,0 +1,33 @@
+# Python
+__pycache__
+*.pyc
+*.pyd
+*.pyo
+.Python
+env
+venv
+ENV
+env.bak
+venv.bak
+
+# FastAPI/development specific
+.mypy_cache
+.pytest_cache
+.vscode
+.idea
+htmlcov
+.coverage*
+coverage.xml
+test.db
+log.txt
+dist
+site
+build
+*.zip
+*.swp
+*~
+.cache
+
+# OS generated files
+.DS_Store
+Thumbs.db
