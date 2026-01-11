@@ -27,6 +27,28 @@ jobs:
       run: |
         python -c "from main import app; print('App loaded successfully')"
 
-    - name: Build Docker image
+    # -------------------------
+    # DEBUG SECRETS (SAFE)
+    # -------------------------
+    - name: Debug secrets presence
       run: |
-        docker build -t fastapi-demo .
+        if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ]; then echo "Username missing"; else echo "Username OK"; fi
+        if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then echo "Token missing"; else echo "Token OK"; fi
+
+    # -------------------------
+    # LOGIN TO DOCKERHUB
+    # -------------------------
+    - name: Login to DockerHub
+      run: |
+        echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login \
+          -u "${{ secrets.DOCKERHUB_USERNAME }}" \
+          --password-stdin
+
+    # -------------------------
+    # BUILD + PUSH IMAGE
+    # -------------------------
+    - name: Build and push Docker image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-demo:latest .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-demo:latest
+
